@@ -1,24 +1,40 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
+  <title>WebSocket Client</title>
 </head>
 <body>
-    <img src="/screenshot.png" alt="">
-    <button onclick="takeScreenshot()">Take Screenshot</button>
+  <h1>WebSocket Client</h1>
+  <img id="stream" />
+  <button id="startButton">Start Streaming</button>
+  <button id="stopButton">Stop Streaming</button>
+  <script>
+    const img = document.getElementById('stream');
+    const startButton = document.getElementById('startButton');
+    const stopButton = document.getElementById('stopButton');
+    var socket = new WebSocket(`ws://localhost:3000/websocket`);;
+
+
+    socket.onopen = () => {
+      console.log('WebSocket connection established.');
+    };
+
+    socket.onmessage = (event) => {
+      //console.log(event.data);
+      img.src = 'data:image/png;base64,' + event.data;
+    };
+
+    socket.onclose = () => {
+      console.log('WebSocket connection closed.');
+    };
+
+    startButton.addEventListener('click', () => {
+      socket.send('start');
+    });
+
+    stopButton.addEventListener('click', () => {
+      socket.send('stop');
+    });
+  </script>
 </body>
 </html>
-<!-- //axios CDN -->
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script>
-    function takeScreenshot(){
-        axios.post("/takescreenshot").then(response => {
-        console.log(response.data);
-        location.reload();
-        }).catch(err => {
-            console.log(err);
-        })
-    }
-</script>

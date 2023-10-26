@@ -1,40 +1,46 @@
 const express = require('express');
+const puppeteer = require('puppeteer');
 const app = express();
 const port = 3000;
 const path = require('path');
-const { exec } = require('child_process');
 const fs = require('fs');
 
 
-app.set('view engine', 'ejs');      // set the view engine to ejs
-app.use(express.static(path.join(__dirname,"..","Screenshots")))
+app.set
 
 app.listen(port,()=>{
     console.log(`Server is running on port ${port}`);
 })
 
-//takes a screenshot and saves it in the Screenshots folder which is served as a static folder
-app.post('/takescreenshot',(req,res)=>{
+app.get('/takescreenshot',async (req,res)=>{
     
-    console.log("Taking screenshot");
-    // Delete the previous screenshot if it exists
-    if(fs.existsSync(path.join(__dirname,"..","Screenshots","screenshot.png")))
-        fs.unlinkSync(path.join(__dirname,"..","Screenshots","screenshot.png"))
-    
-    const bashScriptPath = path.join(__dirname,"..","bashScripts","screenshot.sh"); // Replace with the path to your Bash script
-    
-    // Run the Bash script to take the screenshot
-    exec(`bash ${bashScriptPath}`, (error, stdout, stderr) => {
-    if (error) {
-        console.error(`Error executing the script: ${error}`);
-        return res.send(error);
+    // Launch a headless Chrome browser
+    const browser = await puppeteer.launch();
+
+    // Create a new page/tab
+    const page = await browser.newPage();
+
+    // Navigate to a website
+    await page.goto('https://temp-mail.org/en/');
+
+    const Filename = "screenshot.png";
+    const screenshotPath = path.join((__dirname,"..", "Screenshots",Filename));
+
+    // Ensure the directory exists
+    if (!fs.existsSync(screenshotDir)) {
+        fs.mkdirSync(screenshotDir);
     }
-    else
-        res.send("successsfully taken screenshot")
-    });
+
+    // Take a screenshot of the page
+    await page.screenshot({ path: screenshotPath });
+
+    console.log(`Screenshot saved to ${screenshotPath}`);
+
+    // Close the browser
+    await browser.close();
 })
 
 app.get("/",(req,res)=>{
-    res.render(path.join(__dirname,"..","ClientSide","index.ejs"));
+    res.render(path.join(__dirname,"..","ClientSide","index.ejs"))
 })
 

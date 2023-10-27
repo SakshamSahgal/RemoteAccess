@@ -2,6 +2,7 @@ const { json } = require('express');
 
 module.exports = (app) => {
 
+    var isStreaming=false;
     const puppeteer = require('puppeteer');
     const puppeteerStream = require('puppeteer-stream');
 
@@ -13,8 +14,8 @@ module.exports = (app) => {
         
         console.log('WebSocket client connected.');
     
-        let browser;
-        let page;
+        let browser;                                        //global variable to store the browser instance
+        let page;                                           //global variable to store the page instance
         let frameCaptureTimeout;
         let fps=30;
 
@@ -25,28 +26,39 @@ module.exports = (app) => {
             browser = await puppeteer.launch({args: ['--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36']});
             page = await browser.newPage();
         
-            await page.goto('https://temp-mail.org/en/');
+            // await page.goto('https://temp-mail.org/en/');
+            await page.goto('https://knuth-programming-hub-9p08.onrender.com/');
         
             // Start streaming frames
             const frameInterval = 1000/parseInt(msg.fps);                                             // Adjust the interval (frame rate as needed)
                                                         
             console.log(frameInterval)
 
-            const captureFrame = async () => {
-                const screenshotBuffer = await page.screenshot({ type: 'png' });                  //capture the frame as a Buffer of PNG data
-                const base64Data = screenshotBuffer.toString('base64');                           // Convert the PNG buffer to base64 data
-                ws.send(base64Data);                                                              // Send the base64 data over the WebSocket connection
-                frameCaptureTimeout = setTimeout(captureFrame, frameInterval);                    // Capture the next frame after the frame interval has passed
-            };
-            captureFrame();
+            await captureFrame(frameInterval);
         };
-    
-        ws.on('message', (msg) => {
-            if (msg.includes('start')) {
-                startStream(JSON.parse(msg));
+        
+        const captureFrame = async (frameInterval) => {
+            const screenshotBuffer = await page.screenshot({ type: 'png' });                  //capture the frame as a Buffer of PNG data
+            const base64Data = screenshotBuffer.toString('base64');                           // Convert the PNG buffer to base64 data
+            console.log('Sending frame.');
+            ws.send(base64Data);                                                          // Send the base64 data over the WebSocket connection
+            if(isStreaming)
+                frameCaptureTimeout = setTimeout(captureFrame, frameInterval);                    // Capture the next frame after the frame interval has passed
+        };
+
+
+        ws.on('message',async (msg) => {
+            msg = JSON.parse(msg);
+
+            if (msg.msgType == 'start') {
+                isStreaming = true;
+                console.log('Starting stream.');
+                await startStream(msg);
+                console.log('Stream started.');
             }
-            if(msg == 'stop'){
+            if(msg.msgType == 'stop'){
                 if (frameCaptureTimeout) {
+                    isStreaming=false;
                     console.log('Clearing frame capture timeout.');
                     clearTimeout(frameCaptureTimeout);
                     frameCaptureTimeout=null;
@@ -56,6 +68,7 @@ module.exports = (app) => {
     
         ws.on('close', async () => {
             if (frameCaptureTimeout) {
+                isStreaming=false;
                 console.log('Clearing frame capture timeout.');
                 clearTimeout(frameCaptureTimeout);
                 frameCaptureTimeout=null;

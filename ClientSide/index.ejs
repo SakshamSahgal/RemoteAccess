@@ -1,40 +1,69 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>WebSocket Client</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-  <h1>WebSocket Client</h1>
-  <img id="stream" />
-  <button id="startButton">Start Streaming</button>
-  <button id="stopButton">Stop Streaming</button>
-  <script>
-    const img = document.getElementById('stream');
-    const startButton = document.getElementById('startButton');
-    const stopButton = document.getElementById('stopButton');
-    var socket = new WebSocket(`ws://localhost:3000/websocket`);;
 
+    <div class="container">
+        
+      <div class="row justify-content-center my-3">
+        <h1>Bot Browser Control</h1>
+      </div>
 
-    socket.onopen = () => {
-      console.log('WebSocket connection established.');
-    };
+        <div class="row justify-content-center">
+            
+          <!-- Canvas Col -->
+            <div class="col" style="width: 800px; height: 600px; padding: 0%;">
+                <canvas id="stream" height="600" width="800"></canvas>
+            </div>
+            
+            <!-- Control Pannel -->
+            <div class="col" style="background-color: lightgreen;">
+              
+              <div class="row justify-content-center py-3">
+                <h3>Controls</h3>
+              </div>
+ 
+              <div class="row justify-content-center my-3">
+                
+                <div class="col">
+                
+                  <div class="input-group">
+                    <input type="number" class="form-control" placeholder="FPS" value="1" id="fps">
+                  </div>
+                
+                </div>
+              </div>
 
-    socket.onmessage = (event) => {
-      //console.log(event.data);
-      img.src = 'data:image/png;base64,' + event.data;
-    };
+              <div class="row justify-content-center my-3">
+                <button id="StreamControl" class="btn btn-primary mb-3">Start Streaming</button>
+              </div>
 
-    socket.onclose = () => {
-      console.log('WebSocket connection closed.');
-    };
+              <div class="row justify-content-center my-3">
+                
+                <div class="col">
+                
+                  <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Enter URL">
+                    <div class="input-group-append">
+                      <button class="btn btn-primary" type="button">Open URL</button>
+                    </div>
+                  </div>
+                
+                </div>
+              </div>
 
-    startButton.addEventListener('click', () => {
-      socket.send('start');
-    });
+            </div>
+        </div>
+    </div>
 
-    stopButton.addEventListener('click', () => {
-      socket.send('stop');
-    });
-  </script>
-</body>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="/Scripts/index.js"></script>
+  </body>
 </html>
+

@@ -35,12 +35,9 @@ StreamControlButton.onclick = function() {
     if (StreamControlButton.innerHTML == "Start Streaming") {
         StartStream();
     } else {
-        StreamControlButton.innerHTML = "Start Streaming";
         StopStream();
     }
 };
-
-
 
 
 function StartStream() {
@@ -56,9 +53,11 @@ function StartStream() {
     
     //wait for 2 seconds 
     setTimeout(function(){
-        StreamControlButton.innerHTML = "Stop Streaming";       // Change the button text to "Stop Streaming"
-        StreamControlButton.disabled = false;                   // Enable the button
-    }, 2000);                                                    //this is done to prevent the user from spamming the start/stop button because the server takes some time to start/stop the stream
+        streamCanvas.addEventListener("mousemove", simulateMouseMove);   // Add a mousemove event listener to the canvas
+        streamCanvas.addEventListener("click", simulateMouseClick);      // Add a click event listener to the canvas
+        StreamControlButton.innerHTML = "Stop Streaming";                // Change the button text to "Stop Streaming"
+        StreamControlButton.disabled = false;                            // Enable the button
+    }, 2000);                                                            //this is done to prevent the user from spamming the start/stop button because the server takes some time to start/stop the stream
     
 }
 
@@ -70,14 +69,16 @@ function StopStream() {
         msgType : "stop"
     }
     socket.send(JSON.stringify(stopJSON));
-    //wait for 5 seconds 
+    //wait for 2 seconds
     setTimeout(function(){
         static.src = "/static.png";
         static.onload = function() {
             streamCtx.drawImage(static, 0, 0);
         };
+        streamCanvas.removeEventListener("mousemove", simulateMouseMove); // Remove the mousemove event listener from the canvas
+        streamCanvas.removeEventListener("click", simulateMouseClick);    // Remove the click event listener from the canvas
         StreamControlButton.disabled = false;
         StreamControlButton.innerHTML = "Start Streaming";      // Change the button text to "Start Streaming"
         document.getElementById("fps").disabled = false;        // re-Enable the FPS input field
-    }, 5000);                                                   //this is done to prevent the user from spamming the start/stop button because the server takes some time to start/stop the stream
+    }, 2000);                                                   //this is done to prevent the user from spamming the start/stop button because the server takes some time to start/stop the stream
 }

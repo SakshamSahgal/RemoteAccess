@@ -4,7 +4,6 @@ module.exports = (app) => {
 
     var isStreaming=false;
     const puppeteer = require('puppeteer');
-    const puppeteerStream = require('puppeteer-stream');
 
     const expressWs = require('express-ws');
     expressWs(app);
@@ -27,8 +26,7 @@ module.exports = (app) => {
             page = await browser.newPage();
         
             // await page.goto('https://temp-mail.org/en/');
-            await page.goto('https://knuth-programming-hub-9p08.onrender.com/');
-        
+            await page.goto('https://sketch.io/sketchpad/');
             // Start streaming frames
             const frameInterval = 1000/parseInt(msg.fps);                                             // Adjust the interval (frame rate as needed)
                                                         
@@ -38,12 +36,17 @@ module.exports = (app) => {
         };
         
         const captureFrame = async (frameInterval) => {
-            const screenshotBuffer = await page.screenshot({ type: 'png' });                  //capture the frame as a Buffer of PNG data
-            const base64Data = screenshotBuffer.toString('base64');                           // Convert the PNG buffer to base64 data
-            console.log('Sending frame.');
-            ws.send(base64Data);                                                          // Send the base64 data over the WebSocket connection
-            if(isStreaming)
-                frameCaptureTimeout = setTimeout(captureFrame, frameInterval);                    // Capture the next frame after the frame interval has passed
+            try{
+                const screenshotBuffer = await page.screenshot({ type: 'png' });                  //capture the frame as a Buffer of PNG data
+                const base64Data = screenshotBuffer.toString('base64');                           // Convert the PNG buffer to base64 data
+                console.log('Sending frame.');
+                ws.send(base64Data);                                                          // Send the base64 data over the WebSocket connection
+                if(isStreaming)
+                    frameCaptureTimeout = setTimeout(captureFrame, frameInterval);                    // Capture the next frame after the frame interval has passed                
+            }
+            catch(err){
+                console.error(err);
+            }
         };
 
 
@@ -63,10 +66,15 @@ module.exports = (app) => {
                     clearTimeout(frameCaptureTimeout);
                     frameCaptureTimeout=null;
                 }
-            }  
+            }
+            if(msg.msgType == 'click'){
+                console.log(msg);
+                await page.mouse.click(msg.x,msg.y);
+            }
         });
     
         ws.on('close', async () => {
+            
             if (frameCaptureTimeout) {
                 isStreaming=false;
                 console.log('Clearing frame capture timeout.');
@@ -78,6 +86,8 @@ module.exports = (app) => {
                 await browser.close();
                 browser = null;
             }
+
+            
             console.log('WebSocket client disconnected.');
         });
     });

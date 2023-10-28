@@ -32,7 +32,7 @@
                 <div class="col">
                 
                   <div class="input-group">
-                    <input type="number" class="form-control" placeholder="FPS" value="1" id="fps">
+                    <input type="number" class="form-control" placeholder="FPS" value="30" id="fps">
                   </div>
                 
                 </div>
@@ -56,6 +56,19 @@
                 </div>
               </div>
 
+              <div class="row justify-content-center my-3">
+                
+                <div class="col">
+                
+                  <div class="input-group">
+                    <input type="range" id="offsetslider" class="form-control" min="-190" max="10" value="-87">
+                  </div>
+                  <div>
+                    <p id="offset">-87</p>
+                  </div>
+                </div>
+              </div>
+
             </div>
         </div>
     </div>
@@ -64,6 +77,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="/Scripts/index.js"></script>
+    <script src="/Scripts/mouseEvents.js"></script>
   </body>
 </html>
 

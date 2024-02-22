@@ -28,10 +28,10 @@ module.exports = (app) => {
                     ]
                   }));
                 page = await browser.newPage();
-                // await page.goto("https://www.youtube.com/");
+                await page.goto("https://www.youtube.com/");
                 // await page.goto('https://knuth-programming-hub-9p08.onrender.com/');
                 // await page.goto('https://temp-mail.org/en/');
-                await page.goto('https://sketch.io/sketchpad/');
+                // await page.goto('https://sketch.io/sketchpad/');
                 // await page.goto('https://poki.com/en/g/we-become-what-we-behold');
             }
 
